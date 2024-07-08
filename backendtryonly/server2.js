@@ -2,7 +2,6 @@ const express = require('express');
 const sql = require('mssql');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const path = require('path');
 
 const app = express();
 app.use(cors());
@@ -22,14 +21,14 @@ const config = {
     }
 };
 
-// Serve static files from the React app
-app.use('/samplehome/*', express.static(path.join(__dirname, '../frontend/dist')));
-
-// API routes
 app.get('/api/data', async (req, res) => {
     try {
         const pool = await sql.connect(config);
         const result = await pool.request().query('SELECT * FROM dbo.sample');
+        
+        // Log the data received from the database
+        console.log('Data from database:', result.recordset);
+        
         res.json(result.recordset);
     } catch (err) {
         console.error('Error executing SQL query:', err.message);
@@ -82,11 +81,6 @@ app.delete('/api/data/:id', async (req, res) => {
         console.error('Error executing SQL query:', err.message);
         res.status(500).json({ error: 'Internal server error' });
     }
-});
-
-// The "catchall" handler: for any request that doesn't match one above, send back the index.html file from the React app
-app.get('/samplehome/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 8081;
