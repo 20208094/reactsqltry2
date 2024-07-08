@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/a3803843-d511-4b4e-addc-299e83512034/resourceGroups/AgriTayo/providers/Microsoft.Web/sites/trybackend",
+    "appService.deploySubpath": "."
+}

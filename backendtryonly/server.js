@@ -25,6 +25,10 @@ app.get('/api/data', async (req, res) => {
     try {
         const pool = await sql.connect(config);
         const result = await pool.request().query('SELECT * FROM dbo.sample');
+        
+        // Log the data received from the database
+        console.log('Data from database:', result.recordset);
+        
         res.json(result.recordset);
     } catch (err) {
         console.error('Error executing SQL query:', err.message);
