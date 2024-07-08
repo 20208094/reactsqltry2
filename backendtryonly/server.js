@@ -8,11 +8,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+const PORT = process.env.PORT || 8081;
+
 const config = {
     user: process.env.DB_USER || 'agritayo',
     password: process.env.DB_PASSWORD || 'Irregular4',
     server: process.env.DB_SERVER || 'agritayo.database.windows.net',
-    port: process.env.DB_PORT || 1433,
+    port: process.env.DB_PORT || 8081,
     database: process.env.DB_NAME || 'AgriTayo',
     authentication: {
         type: 'default'
@@ -22,8 +24,13 @@ const config = {
     }
 };
 
-// Serve static files from the React app
-app.use('/samplehome/*', express.static(path.join(__dirname, '../frontend/dist')));
+const distPath = path.join(__dirname, '../frontend/dist')
+
+app.use(express.static(distPath));
+
+app.get('/samplehome/*', (req, res) => {
+    res.sendFile('index.html', { root : distPath});
+});
 
 // API routes
 app.get('/api/data', async (req, res) => {
@@ -83,13 +90,6 @@ app.delete('/api/data/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
-// The "catchall" handler: for any request that doesn't match one above, send back the index.html file from the React app
-app.get('/samplehome/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
-});
-
-const PORT = process.env.PORT || 8081;
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
