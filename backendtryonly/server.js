@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const PORT = process.env.PORT || 8085;
+const PORT = process.env.PORT || 8081;
 
 const config = {
     user: process.env.DB_USER || 'agritayo',
@@ -34,30 +34,13 @@ const poolPromise = new sql.ConnectionPool(config)
         throw err;
     });
 
-const distPath = path.join(__dirname, '../frontend/dist/');
-app.use(express.static(distPath));
-
-app.get('/home/*', (req, res) => {
-    res.sendFile('index.html', { root: distPath });
-});
-
-app.get('/', (req, res) => {
-    res.redirect('/home/');
-});
-
+// API routes
 app.get('/api/data', async (req, res) => {
     try {
         const pool = await poolPromise;
         console.log('Connected to the pool');
         
-        // Add a timeout check to ensure the query doesn't hang indefinitely
-        const timeoutPromise = new Promise((resolve, reject) =>
-            setTimeout(() => reject(new Error('Query timeout')), 5000)
-        );
-
-        const queryPromise = pool.request().query('SELECT * FROM dbo.sample');
-
-        const result = await Promise.race([queryPromise, timeoutPromise]);
+        const result = await pool.request().query('SELECT * FROM dbo.sample');
         
         console.log('Query executed');
         console.log('Data fetched:', result.recordset); // Log the fetched data
@@ -113,6 +96,15 @@ app.delete('/api/data/:id', async (req, res) => {
         console.error('Error executing SQL query:', err.message);
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+
+// Serve frontend files
+const distPath = path.join(__dirname, '../frontend/dist/');
+app.use(express.static(distPath));
+
+// Catch-all route to serve the frontend
+app.get('*', (req, res) => {
+    res.sendFile('index.html', { root: distPath });
 });
 
 app.listen(PORT, () => {

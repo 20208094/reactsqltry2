@@ -70,7 +70,7 @@ function App() {
   };
 
   return (
-    <Router basename="/home">
+    <Router basename="/">
       <div style={{ padding: '50px' }}>
         <h1>Data from SQL Server</h1>
         
